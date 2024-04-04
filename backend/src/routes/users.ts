@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 
 import { decode, sign, verify } from "hono/jwt";
-import { signupInput } from "../zod/inputValidation";
+import { signupInput, signInInput } from "@pathakkar01/common";
 
 type variables = {
   prisma: any;
@@ -19,18 +19,21 @@ user.post("/signup", async (c) => {
   const prisma = c.get("prisma");
   const body = await c.req.json();
   const parsedResponse = signupInput.safeParse(body);
+  console.log(parsedResponse);
+
   try {
-    if (!parsedResponse.success) {
+    if (parsedResponse.success) {
       const user = await prisma.user.create({
         data: {
           email: body.email,
           password: body.password,
+          name: body.name,
         },
       });
       const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
       return c.json({ token: jwt });
     }
-    c.status(401);
+    c.status(403);
     return c.json({ error: "invalid Inputs" });
   } catch (ex) {
     c.status(403);
@@ -39,17 +42,24 @@ user.post("/signup", async (c) => {
 });
 user.post("/signin", async (c) => {
   const prisma = c.get("prisma");
-  const { email, password } = await c.req.json();
+  const body = await c.req.json();
+  const parsedResponse = signInInput.safeParse(body);
+  console.log(parsedResponse);
+
   try {
-    const user = await prisma.user.findUnique({
-      where: {
-        email: email,
-      },
-    });
-    if (user) {
-      const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
-      return c.json({ token: jwt });
+    if (parsedResponse.success) {
+      const user = await prisma.user.findUnique({
+        where: {
+          email: body.email,
+        },
+      });
+      if (user) {
+        const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
+        return c.json({ token: jwt });
+      }
     }
+    c.status(403);
+    return c.json({ error: "Invalid Inputs" });
   } catch (ex) {
     c.status(403);
     return c.json({ error: "error while signing in" });

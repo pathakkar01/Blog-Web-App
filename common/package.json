@@ -1,14 +1,15 @@
 {
-  "name": "y",
-  "version": "1.0.0",
+  "name": "@pathakkar01/common",
+  "version": "1.0.4",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@pathakkar01/common": "^1.0.3",
     "zod": "^3.22.4"
   }
 }

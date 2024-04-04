@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client/edge";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { verify } from "hono/jwt";
+import { createBolgInput, updateBlogInput } from "@pathakkar01/common";
 
 type variables = {
   userId: string;
@@ -18,6 +17,7 @@ const blogRouter = new Hono<{
 
 blogRouter.use("/*", async (c, next) => {
   const authHeader = c.req.header("Authorization") || "";
+
   try {
     const token = authHeader.split(" ")[1];
     const user = await verify(token, c.env.JWT_SECRET);
@@ -38,9 +38,7 @@ blogRouter.use("/*", async (c, next) => {
 blogRouter.get("/:id", async (c) => {
   const id = c.req.param("id");
   try {
-    const prisma = new PrismaClient({
-      datasourceUrl: c.env.DATABASE_URL,
-    }).$extends(withAccelerate());
+    const prisma = c.get("prisma");
     const post = await prisma.post.findUnique({
       where: {
         id: id,
@@ -57,18 +55,21 @@ blogRouter.post("/", async (c) => {
   try {
     const userId = c.get("userId");
     const body = await c.req.json();
-    const prisma = new PrismaClient({
-      datasourceUrl: c.env.DATABASE_URL,
-    }).$extends(withAccelerate());
-    const post = await prisma.post.create({
-      data: {
-        title: body.title,
-        content: body.content,
-        authorId: userId,
-      },
-    });
-    console.log(post);
-    return c.json(post);
+    const parsedResponse = createBolgInput.safeParse(body);
+    if (parsedResponse.success) {
+      const prisma = c.get("prisma");
+      const post = await prisma.post.create({
+        data: {
+          title: body.title,
+          content: body.content,
+          authorId: userId,
+        },
+      });
+      console.log(post);
+      return c.json(post);
+    }
+    c.status(403);
+    return c.json({ error: "invalid Inputs" });
   } catch (e) {
     console.log(e);
     c.status(401);
@@ -76,22 +77,30 @@ blogRouter.post("/", async (c) => {
   }
 });
 blogRouter.put("/", async (c) => {
-  const body = await c.req.json();
-  const userId = c.get("userId");
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
-  const post = await prisma.post.update({
-    where: {
-      id: body.id,
-      authorId: userId,
-    },
-    data: {
-      title: body.title,
-      content: body.content,
-    },
-  });
-  return c.json({ success: true, blogId: post.id });
+  try {
+    const body = await c.req.json();
+    const userId = c.get("userId");
+    const prisma = c.get("prisma");
+    const parsedResponse = updateBlogInput.safeParse(body);
+    if (parsedResponse.success) {
+      const post = await prisma.post.update({
+        where: {
+          id: body.id,
+          authorId: userId,
+        },
+        data: {
+          title: body.title,
+          content: body.content,
+        },
+      });
+      return c.json({ success: true, blogId: post.id });
+    }
+    c.status(403);
+    return c.json({ error: "invalid Inputs" });
+  } catch (e) {
+    c.status(403);
+    return c.json({ error: "Email already exists!" });
+  }
 });
 
 export default blogRouter;
