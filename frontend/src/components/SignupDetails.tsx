@@ -1,8 +1,11 @@
 import { useState } from "react";
+import axios from "axios";
 
 import { signupParams } from "@pathakkar01/common";
 import AuthHeader from "./AuthHeader";
 import LabelledInput from "./LabelledInput";
+import { BACKEND_URL } from "../config";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const SignupDetails = () => {
   const [postInputs, setPostInputs] = useState<signupParams>({
@@ -10,8 +13,20 @@ const SignupDetails = () => {
     email: "",
     password: "",
   });
-  const onSignup = () => {
-    console.log(postInputs);
+  const navigate = useNavigate();
+  const onSignup = async () => {
+    try {
+      const res = await axios.post(
+        `${BACKEND_URL}/api/v1/user/signup`,
+        postInputs
+      );
+      const data = res.data;
+      localStorage.setItem("token", data.token);
+      navigate("/blogs");
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
   };
   return (
     <div className="h-screen flex justify-center items-center flex-col">

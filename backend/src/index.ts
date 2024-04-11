@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import user from "./routes/users";
 import blogRouter from "./routes/blog";
 import { PrismaClient } from "@prisma/client/edge";
+import { cors } from "hono/cors";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 type variables = {
@@ -14,6 +15,7 @@ const app = new Hono<{
   };
   Variables: variables;
 }>();
+app.use("/api/*", cors());
 
 app.use("*", async (c, next) => {
   const prisma = new PrismaClient({

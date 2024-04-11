@@ -3,14 +3,29 @@ import { useState } from "react";
 import { signInParams } from "@pathakkar01/common";
 import AuthHeader from "./AuthHeader";
 import LabelledInput from "./LabelledInput";
+import { BACKEND_URL } from "../config";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const SigninDetails = () => {
   const [postInputs, setPostInputs] = useState<signInParams>({
     email: "",
     password: "",
   });
-  const onSignIn = () => {
-    console.log(postInputs);
+  const navigate = useNavigate();
+  const onSignIn = async () => {
+    try {
+      const res = await axios.post(
+        `${BACKEND_URL}/api/v1/user/signup`,
+        postInputs
+      );
+      const data = res.data;
+      localStorage.setItem("token", data.token);
+      navigate("/blogs");
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (

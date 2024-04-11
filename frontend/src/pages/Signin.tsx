@@ -3,7 +3,7 @@ import SigninDetails from "../components/SigninDetails";
 
 const Signin = () => {
   return (
-    <div className="grid grid-cols-2">
+    <div className="grid md:grid-cols-2">
       <div>
         <SigninDetails />
       </div>

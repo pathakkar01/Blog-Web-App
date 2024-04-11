@@ -34,6 +34,30 @@ blogRouter.use("/*", async (c, next) => {
     return c.json({ error: "unauthorized" });
   }
 });
+blogRouter.get("/bulk", async (c) => {
+  console.log("here");
+  try {
+    const prisma = c.get("prisma");
+    const blogs = await prisma.post.findMany({
+      select: {
+        content: true,
+        title: true,
+        id: true,
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    // console.log(blogs);
+
+    return c.json({ blogs });
+  } catch (e) {
+    c.status(403);
+    return c.json({ error: "Something went Wrong!" });
+  }
+});
 
 blogRouter.get("/:id", async (c) => {
   const id = c.req.param("id");
@@ -51,6 +75,7 @@ blogRouter.get("/:id", async (c) => {
     return c.json({ error: "Blog with given id not Found" });
   }
 });
+
 blogRouter.post("/", async (c) => {
   try {
     const userId = c.get("userId");
