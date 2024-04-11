@@ -1,4 +1,7 @@
+import { Link } from "react-router-dom";
+
 interface BlogCardParams {
+  id: string;
   authorName: string;
   title: string;
   content: string;
@@ -7,17 +10,18 @@ interface BlogCardParams {
 
 const BlogCard = ({
   authorName,
+  id,
   title,
   content,
   publishedDate,
 }: BlogCardParams) => {
   return (
-    <div className="border-b p-4 border-slate-200 pb-4">
+    <Link to={`/blog/${id}`} className="border-b p-4 border-slate-200 pb-4">
       <div className="flex">
-        <Avatar name={authorName} />
+        <Avatar name={authorName || "Anonymous"} />
 
         <div className="flex justify-center flex-col text-sm font-light px-2">
-          {authorName}
+          {authorName || "Anonymous"}
         </div>
         <div className="flex justify-center flex-col p-1">
           <Circle />
@@ -33,7 +37,7 @@ const BlogCard = ({
       <div className="text-slate-500 text-sm font-thin pt-2">{`${Math.ceil(
         content.length / 100
       )} minutes read`}</div>
-    </div>
+    </Link>
   );
 };
 
