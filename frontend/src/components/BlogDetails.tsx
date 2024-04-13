@@ -1,11 +1,10 @@
 import { Blog } from "../hooks";
-import { Appbar } from "./Appbar";
+
 import { Avatar } from "./BlogCard";
 
 const BlogDetails = ({ blog }: { blog: Blog }) => {
   return (
     <div>
-      <Appbar />
       <div className="flex justify-content">
         <div className="grid grid-cols-12 w-full mt-5 px-20 max-w-screen-2xl gap-6">
           <div className="col-span-8">

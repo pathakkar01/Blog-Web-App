@@ -1,5 +1,6 @@
 import { Appbar } from "../components/Appbar";
 import BlogDetails from "../components/BlogDetails";
+import { BlogSkeleton } from "../components/BlogsSkeleton";
 import { useBlog } from "../hooks";
 import { useParams } from "react-router-dom";
 
@@ -8,10 +9,21 @@ const Blog = () => {
   const { loading, blog } = useBlog({
     id: id || "",
   });
-  if (loading) {
-    <div>loading</div>;
-  }
-  return <BlogDetails blog={blog} />;
+
+  return (
+    <>
+      <Appbar />
+      {loading ? (
+        <div>
+          <BlogSkeleton />
+        </div>
+      ) : (
+        <div>
+          <BlogDetails blog={blog} />;
+        </div>
+      )}
+    </>
+  );
 };
 
 export default Blog;

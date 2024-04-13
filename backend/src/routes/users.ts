@@ -30,6 +30,8 @@ user.post("/signup", async (c) => {
           name: body.name,
         },
       });
+      console.log(user);
+
       const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
       return c.json({ token: jwt });
     }
